@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  inventoryObjectsCreate:
+    build: ./inventoryObjectsCreate
+    ports:
+      - "3014:3014"
+    env_file:
+      - .env
+
+  inventoryObjectsDelete:
+    build: ./inventoryObjectsDelete
+    ports:
+      - "3015:3015"
+    env_file:
+      - .env
+
+  inventoryObjectsRead:
+    build: ./inventoryObjectsRead
+    ports:
+      - "3016:3016"
+    env_file:
+      - .env
+
+  inventoryObjectsUpdate:
+    build: ./inventoryObjectsUpdate
+    ports:
+      - "3017:3017"
+    env_file:
+      - .env

@@ -1,17 +1,17 @@
 const db = require('../config/db');
 
-// Lógica para actualizar un objeto de inventario por su ID
+// Logic to update an inventory item by its ID
 exports.updateInventoryObject = async (req, res) => {
   const { id } = req.params;
-  const { objectType, quantity, status } = req.body; // Usamos estos campos según la nueva estructura de datos
+  const { objectType, quantity, status } = req.body; // We use these fields according to the new data structure
 
-  // Validación para asegurarse de que los campos necesarios están presentes
+  // Validation to ensure that the required fields are present
   if (!objectType || !quantity || !status) {
     return res.status(400).json({ message: 'Object type, quantity, and status are required' });
   }
 
   try {
-    // Actualizamos en la tabla 'inventoryObj'
+    // We update the 'inventoryObj' table
     const result = await db.query(
       'UPDATE inventoryObj SET objectType = $1, quantity = $2, status = $3 WHERE id = $4 RETURNING *',
       [objectType, quantity, status, id]
