@@ -1,0 +1,62 @@
+openapi: 3.0.0
+info:
+  title: Inventory Update API
+  description: API to update an inventory object by its ID.
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:3017/api'
+paths:
+  /inventory-objects/{id}:
+    put:
+      summary: Update an inventory object by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the inventory object to update
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                objectType:
+                  type: string
+                quantity:
+                  type: integer
+                status:
+                  type: string
+              required:
+                - objectType
+                - quantity
+                - status
+      responses:
+        '200':
+          description: Inventory object successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  updatedObject:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      objectType:
+                        type: string
+                      quantity:
+                        type: integer
+                      status:
+                        type: string
+        '400':
+          description: Missing required fields
+        '404':
+          description: Inventory object not found
+        '500':
+          description: Server error

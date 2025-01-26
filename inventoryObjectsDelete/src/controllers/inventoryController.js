@@ -1,6 +1,6 @@
 const db = require('../config/db');
 
-// Lógica para eliminar un objeto de inventario por id
+// Logic to delete an inventory item by id
 exports.deleteInventoryObject = async (req, res) => {
   const { id } = req.params;
 
