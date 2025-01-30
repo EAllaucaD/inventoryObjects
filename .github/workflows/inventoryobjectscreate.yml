@@ -1,4 +1,4 @@
-name: CI Pipeline Edit Report
+name: CI Pipeline Inventory Objects Create
 
 on:
   workflow_call:
