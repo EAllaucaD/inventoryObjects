@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 // Swagger setup
-const swaggerDocument = YAML.load('./src/docs/swagger.yaml');  // Ruta del archivo swagger.yaml
+const swaggerDocument = YAML.load('./src/docs/swagger.yaml');  // Route swagger.yaml
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Routes
