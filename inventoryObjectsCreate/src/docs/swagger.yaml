@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Inventory Management Service
-  description: API Service to manage inventory objects.
+  description: API Service to manage inventory objects create.
   version: 1.0.0
 servers:
   - url: http://localhost:3014/api
