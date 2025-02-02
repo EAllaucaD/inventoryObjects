@@ -19,14 +19,27 @@ jobs:
       - name: Login to DockerHub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
+      - name: Exclude docs and swagger.yaml for main
+        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
+        run: |
+          # Exclude docs/ and swagger.yaml when in `main` or when doing pull request to main
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            rm -rf ./inventoryObjectsUpdate/docs
+          fi
+          
+          # If it is a pull request to main from dev or QA, also exclude the filess
+          if [[ "${{ github.event_name }}" == "pull_request" && ( "${{ github.event.pull_request.base.ref }}" == "main" ) ]]; then
+            rm -rf ./inventoryObjectsUpdate/docs
+          fi
+
       - name: Build the Docker Image
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
             docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsupdate:dev ./inventoryObjectsUpdate
-          elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
-            docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsupdate:prod ./inventoryObjectsUpdate
-          elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
+          elif [[ "${{ github.ref }}" == "refs/heads/QA" ]]; then
             docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsupdate:qa ./inventoryObjectsUpdate
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsupdate:prod ./inventoryObjectsUpdate
           else
             echo "Invalid branch for building Docker image."
             exit 1
@@ -36,8 +49,8 @@ jobs:
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
             docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsupdate:dev
-          elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
-            docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsupdate:prod
-          elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
+          elif [[ "${{ github.ref }}" == "refs/heads/QA" ]]; then
             docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsupdate:qa
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsupdate:prod
           fi

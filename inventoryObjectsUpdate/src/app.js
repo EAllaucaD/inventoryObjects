@@ -8,18 +8,18 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 dotenv.config();
 const app = express();
 
-// Swagger Configuration
+// Swagger Configuration.
 const swaggerDocument = yaml.load('./src/docs/swagger.yaml');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Middleware
+// Middleware.
 app.use(cors());
 app.use(express.json());
 
-// API Routes
+// API Routes.
 app.use('/api/inventory-objects', inventoryRoutes);
 
-// Error handling
+// Error handling.
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Internal Server Error' });
