@@ -24,12 +24,12 @@ jobs:
         run: |
           # Exclude docs/ and swagger.yaml when in `main` or when doing pull request to main
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            rm -rf ./inventoryObjectsUpdate/docs
+            rm -rf ./inventoryObjectsUpdate/src/docs
           fi
           
-          # If it is a pull request to main from dev or QA, also exclude the filess
+          # If it is a pull request to main from dev or QA, also exclude the files
           if [[ "${{ github.event_name }}" == "pull_request" && ( "${{ github.event.pull_request.base.ref }}" == "main" ) ]]; then
-            rm -rf ./inventoryObjectsUpdate/docs
+            rm -rf ./inventoryObjectsUpdate/src/docs
           fi
 
       - name: Build the Docker Image
