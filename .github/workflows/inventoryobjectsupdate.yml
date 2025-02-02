@@ -1,0 +1,43 @@
+name: CI Pipeline Inventory Objects Update
+
+on:
+  workflow_call:
+    secrets:
+      DOCKER_USERNAME:
+        required: true
+      DOCKER_PASSWORD:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Login to DockerHub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build the Docker Image
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsupdate:dev ./inventoryObjectsUpdate
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsupdate:prod ./inventoryObjectsUpdate
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsupdate:qa ./inventoryObjectsUpdate
+          else
+            echo "Invalid branch for building Docker image."
+            exit 1
+          fi
+
+      - name: Push to DockerHub
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsupdate:dev
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
+            docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsupdate:prod
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
+            docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsupdate:qa
+          fi

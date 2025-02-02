@@ -13,6 +13,7 @@ jobs:
       inventoryobjectscreate: ${{ steps.filter.outputs.inventoryobjectscreate }}
       inventoryobjectsdelete: ${{ steps.filter.outputs.inventoryobjectsdelete }}
       inventoryobjectsread: ${{ steps.filter.outputs.inventoryobjectsread }} 
+      inventoryobjectsupdate: ${{ steps.filter.outputs.inventoryobjectsupdate }} 
 
     steps:
       - name: Checkout repository
@@ -35,7 +36,8 @@ jobs:
           declare -A SERVICES=( 
             ["inventoryobjectscreate"]="inventoryObjectsCreate"
             ["inventoryobjectsdelete"]="inventoryObjectsDelete"
-            ["inventoryobjectsread"]="inventoryObjectsRead" # Agregado para "read"
+            ["inventoryobjectsread"]="inventoryObjectsRead"
+            ["inventoryobjectsupdate"]="inventoryObjectsUpdate" # Agregado para "update"
           )
 
           OUTPUT_FILE="$GITHUB_OUTPUT"
@@ -65,7 +67,15 @@ jobs:
   trigger-inventory-objects-read:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.inventoryobjectsread == 'true' }}
-    uses: ./.github/workflows/inventoryobjectsread.yml 
+    uses: ./.github/workflows/inventoryobjectsread.yml
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+  trigger-inventory-objects-update:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.inventoryobjectsupdate == 'true' }}
+    uses: ./.github/workflows/inventoryobjectsupdate.yml 
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

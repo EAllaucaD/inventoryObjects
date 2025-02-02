@@ -13,7 +13,7 @@ paths:
         - name: id
           in: path
           required: true
-          description: ID of the inventory object to update
+          description: ID of the inventory object to update.
           schema:
             type: integer
       requestBody:
