@@ -8,7 +8,7 @@ servers:
 paths:
   /inventory-objects/{id}:
     delete:
-      summary: Delete an inventory object by id
+      summary: Delete an inventory object by id.
       parameters:
         - name: id
           in: path

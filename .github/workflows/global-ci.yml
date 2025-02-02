@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       inventoryobjectscreate: ${{ steps.filter.outputs.inventoryobjectscreate }}
+      inventoryobjectsdelete: ${{ steps.filter.outputs.inventoryobjectsdelete }}
 
     steps:
       - name: Checkout repository
@@ -32,6 +33,7 @@ jobs:
           
           declare -A SERVICES=(
             ["inventoryobjectscreate"]="inventoryObjectsCreate"
+            ["inventoryobjectsdelete"]="inventoryObjectsDelete"
           )
 
           OUTPUT_FILE="$GITHUB_OUTPUT"
@@ -49,3 +51,8 @@ jobs:
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+  trigger-inventory-objects-delete:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.inventoryobjectsdelete == 'true' }}
+    uses: ./.github/workflows/inventoryobjectsdelete.yml
