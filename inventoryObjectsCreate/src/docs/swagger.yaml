@@ -10,7 +10,7 @@ servers:
 paths:
   /inventory-objects:
     post:
-      summary: Create a new inventory object
+      summary: Create a new inventory object.
       description: Adds a new inventory object to the database with the specified type, quantity, and status.
       operationId: createInventoryObject
       requestBody:
