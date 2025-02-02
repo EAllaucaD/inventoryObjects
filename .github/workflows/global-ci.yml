@@ -56,3 +56,7 @@ jobs:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.inventoryobjectsdelete == 'true' }}
     uses: ./.github/workflows/inventoryobjectsdelete.yml
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    

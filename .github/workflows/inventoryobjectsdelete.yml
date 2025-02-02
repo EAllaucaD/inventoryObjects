@@ -2,6 +2,11 @@ name: CI Pipeline Inventory Objects Delete
 
 on:
   workflow_call:
+    secrets:
+      DOCKER_USERNAME:
+        required: true
+      DOCKER_PASSWORD:
+        required: true
 
 jobs:
   build:
