@@ -1,4 +1,4 @@
-name: CI Pipeline Inventory Objects Create
+name: CI Pipeline Inventory Objects Read
 
 on:
   workflow_call:
@@ -13,30 +13,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-          
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
       - name: Login to DockerHub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Build the Docker image
+      - name: Build the Docker Image
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-            docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectscreate:dev ./inventoryObjectsCreate
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsread:dev ./inventoryObjectsRead
           elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
-            docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectscreate:prod ./inventoryObjectsCreate
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsread:prod ./inventoryObjectsRead
           elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
-            docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectscreate:qa ./inventoryObjectsCreate
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsread:qa ./inventoryObjectsRead
           else
             echo "Invalid branch for building Docker image."
             exit 1
-          fi
-          
+          fi  
+
       - name: Push to DockerHub
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-            docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectscreate:dev
+            docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsread:dev
           elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
-            docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectscreate:prod
+            docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsread:prod
           elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
-            docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectscreate:qa
+            docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsread:qa
           fi

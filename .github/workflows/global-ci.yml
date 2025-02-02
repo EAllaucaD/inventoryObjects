@@ -12,6 +12,7 @@ jobs:
     outputs:
       inventoryobjectscreate: ${{ steps.filter.outputs.inventoryobjectscreate }}
       inventoryobjectsdelete: ${{ steps.filter.outputs.inventoryobjectsdelete }}
+      inventoryobjectsread: ${{ steps.filter.outputs.inventoryobjectsread }} 
 
     steps:
       - name: Checkout repository
@@ -31,9 +32,10 @@ jobs:
 
           CHANGED_FILES=$(git diff --name-only $BEFORE_COMMIT $CURRENT_COMMIT)
           
-          declare -A SERVICES=(
+          declare -A SERVICES=( 
             ["inventoryobjectscreate"]="inventoryObjectsCreate"
             ["inventoryobjectsdelete"]="inventoryObjectsDelete"
+            ["inventoryobjectsread"]="inventoryObjectsRead" # Agregado para "read"
           )
 
           OUTPUT_FILE="$GITHUB_OUTPUT"
@@ -59,4 +61,11 @@ jobs:
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-    
+      
+  trigger-inventory-objects-read:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.inventoryobjectsread == 'true' }}
+    uses: ./.github/workflows/inventoryobjectsread.yml 
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
