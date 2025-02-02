@@ -4,19 +4,17 @@ on:
   workflow_call:
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
           
-    - name: Login Dockerhub
+    - name: Login to DockerHub
       env:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       
     - name: Build the Docker image
       run: |
@@ -31,7 +29,7 @@ jobs:
             exit 1
           fi
           
-    - name: Push to Dockerhub
+    - name: Push to DockerHub
       run: |
           if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
             docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectscreate:dev
