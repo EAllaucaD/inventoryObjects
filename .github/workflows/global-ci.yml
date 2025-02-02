@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-            fetch-depth: 0
+          fetch-depth: 0
 
       - name: Detect changes
         id: filter
@@ -32,14 +32,13 @@ jobs:
           
           declare -A SERVICES=(
             ["inventoryobjectscreate"]="inventoryObjectsCreate"
-
           )
 
           OUTPUT_FILE="$GITHUB_OUTPUT"
 
           for KEY in "${!SERVICES[@]}"; do
             if echo "$CHANGED_FILES" | grep -q "^${SERVICES[$KEY]}/"; then
-             echo "$KEY=true" >> "$OUTPUT_FILE"
+              echo "$KEY=true" >> "$OUTPUT_FILE"
             fi
           done
 
@@ -47,4 +46,6 @@ jobs:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.inventoryobjectscreate == 'true' }}
     uses: ./.github/workflows/inventoryobjectscreate.yml
-
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
