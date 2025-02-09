@@ -1,104 +1,110 @@
-name: CI/CD Pipeline - InventoryObjectsDelete
+name: CI Pipeline Inventory Objects Delete
 
 on:
-  push:
-    branches: ["dev"]
-  pull_request:
-    branches: ["main", "QA"]
+  workflow_call:
+    secrets:
+      DOCKER_USERNAME:
+        required: true
+      DOCKER_PASSWORD:
+        required: true
+      EC2_HOST:
+        required: true
+      EC2_KEY:
+        required: true
 
 jobs:
-
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+          
+      - name: Login to DockerHub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-    - name: Login to Docker Hub
-      env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      run: |
-        docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-
-    - name: Build and tag the Docker image
-      run: |
-        if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsdelete:dev ./inventoryObjectsDelete
-        elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsdelete:prod ./inventoryObjectsDelete
-        elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsdelete:qa ./inventoryObjectsDelete
-        else
-          echo "Invalid branch for building Docker image."
-          exit 1
-        fi
-
-    - name: Push to Docker Hub
-      run: |
-        if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-          docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsdelete:dev
-        elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
-          docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsdelete:prod
-        elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
-          docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsdelete:qa
-        fi
-
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'push' && github.ref == 'refs/heads/dev' ||
-      github.event_name == 'pull_request' && (github.event.pull_request.base.ref == 'QA' || github.event.pull_request.base.ref == 'main')
-
-    steps:
-    - name: Deploy to EC2
-      uses: appleboy/ssh-action@v1.2.0
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ubuntu
-        key: ${{ secrets.EC2_KEY }}
-        script: |
-          # Install Docker if not already installed
-          if ! command -v docker &> /dev/null; then
-            echo "Installing Docker..."
-            sudo apt update
-            sudo apt install -y docker.io
-            sudo systemctl start docker
-            sudo systemctl enable docker
-            sudo usermod -aG docker $USER
-            sudo systemctl restart docker
-          else
-            echo "Docker is already installed."
+      - name: Exclude docs and swagger.yaml for main
+        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
+        run: |
+          # Exclude docs/ and swagger.yaml when in main or when doing pull request to main
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            rm -rf ./inventoryObjectsDelete/src/docs
+          fi
+          
+          # If it is a pull request to main from dev or QA, also exclude the files
+          if [[ "${{ github.event_name }}" == "pull_request" && ( "${{ github.event.pull_request.base.ref }}" == "main" ) ]]; then
+            rm -rf ./inventoryObjectsDelete/src/docs
           fi
 
+      - name: Build the Docker image
+        run: |
           if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-            TAG="dev"
-          elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
-            TAG="qa"
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsdelete:dev ./inventoryObjectsDelete
           elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
-            TAG="prod"
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsdelete:prod ./inventoryObjectsDelete
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsdelete:qa ./inventoryObjectsDelete
           else
-            echo "Invalid branch for deployment."
+            echo "Invalid branch for building Docker image."
             exit 1
           fi
+          
+      - name: Push to DockerHub
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsdelete:dev
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
+            docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsdelete:prod
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
+            docker push ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsdelete:qa
+          fi
 
-          # Pull the Docker image
-          echo "Pulling Docker image with tag: $TAG"
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsdelete:$TAG
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            # Install Docker if not already installed
+            if ! command -v docker &> /dev/null; then
+              echo "Installing Docker..."
+              sudo apt update
+              sudo apt install -y docker.io
+              sudo systemctl start docker
+              sudo systemctl enable docker
+              sudo usermod -aG docker $USER
+              sudo systemctl restart docker
+            else
+              echo "Docker is already installed."
+            fi
 
-          # Stop and remove the old container
-          echo "Stopping and removing old container..."
-          sudo docker stop inventoryobjectsdelete-container || true
-          sudo docker rm -f inventoryobjectsdelete-container || true
+            if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+              TAG="dev"
+            elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
+              TAG="qa"
+            elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
+              TAG="prod"
+            else
+              echo "Invalid branch for deployment."
+              exit 1
+            fi
 
-          # Run the new container
-          echo "Running new container..."
-          sudo docker run -d -p 3015:3015 --restart unless-stopped --name inventoryobjectsdelete-container \
-            -e HOST_DB=${{ secrets.HOST_DB }} \
-            -e USER_DB=${{ secrets.USER_DB }} \
-            -e PASSWORD_DB=${{ secrets.PASSWORD_DB }} \
-            -e DATABASE_NAME=${{ secrets.DATABASE_NAME }} \
-            -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-            -e PORT=${{ secrets.PORTD }} \
-            ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsdelete:$TAG
+            # Pull the Docker image
+            echo "Pulling Docker image with tag: $TAG"
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsdelete:$TAG
+
+            # Stop and remove the old container
+            echo "Stopping and removing old container..."
+            sudo docker stop inventoryobjectsdelete-container || true
+            sudo docker rm -f inventoryobjectsdelete-container || true
+
+            # Run the new container
+            echo "Running new container..."
+            sudo docker run -d -p 3015:3015 --restart unless-stopped --name inventoryobjectsdelete-container \
+              -e HOST_DB=${{ secrets.HOST_DB }} \
+              -e USER_DB=${{ secrets.USER_DB }} \
+              -e PASSWORD_DB=${{ secrets.PASSWORD_DB }} \
+              -e DATABASE_NAME=${{ secrets.DATABASE_NAME }} \
+              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+              -e PORT=${{ secrets.PORTD }} \
+              ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsdelete:$TAG
