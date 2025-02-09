@@ -8,7 +8,7 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3014;
+const port = process.env.PORTC || 3014;
 
 // Middleware
 app.use(cors());
