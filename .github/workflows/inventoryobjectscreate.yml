@@ -24,11 +24,11 @@ jobs:
     - name: Build and tag the Docker image
       run: |
         if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectscreate:dev ./inventoryobjects/inventoryObjectsCreate
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectscreate:dev ./inventoryObjectsCreate
         elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectscreate:prod ./inventoryobjects/inventoryObjectsCreate
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectscreate:prod ./inventoryObjectsCreate
         elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectscreate:qa ./inventoryobjects/inventoryObjectsCreate
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/inventoryobjectscreate:qa ./inventoryObjectsCreate
         else
           echo "Invalid branch for building Docker image."
           exit 1
