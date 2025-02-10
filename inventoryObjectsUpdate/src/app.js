@@ -27,7 +27,7 @@ app.use((err, req, res, next) => {
 
 // Initialize Server.
 const PORT = process.env.PORTU || 3017;
-app.listen(PORTU, () => {
+app.listen(PORT, () => {
   console.log(`Server running on port ${PORTU}`);
   console.log(`Swagger docs available at http://localhost:${PORTU}/api-docs`);
 });
