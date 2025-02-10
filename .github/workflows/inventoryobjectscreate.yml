@@ -106,5 +106,5 @@ jobs:
               -e PASSWORD_DB=${{ secrets.PASSWORD_DB }} \
               -e DATABASE_NAME=${{ secrets.DATABASE_NAME }} \
               -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-              -e PORT=${{ secrets.PORTC }} \
+              -e PORTC=${{ secrets.PORTC }} \
               ${{ secrets.DOCKER_USERNAME }}/inventoryobjectscreate:$TAG

@@ -75,6 +75,8 @@ jobs:
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_KEY: ${{ secrets.EC2_KEY}}
 
   trigger-inventory-objects-update:
     needs: detect-changes
@@ -83,3 +85,5 @@ jobs:
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_KEY: ${{ secrets.EC2_KEY}}
