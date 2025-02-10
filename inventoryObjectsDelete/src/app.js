@@ -28,7 +28,7 @@ app.use((err, req, res, next) => {
 
 // Start server.
 const PORT = process.env.PORTD || 3015;
-app.listen(PORT, () => {
+app.listen(PORTD, () => {
   console.log(`Server running on port ${PORTD}`);
   console.log(`Swagger docs available at http://localhost:${PORTD}/api-docs`);
 });
