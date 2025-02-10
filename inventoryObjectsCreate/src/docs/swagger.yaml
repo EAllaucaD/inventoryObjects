@@ -1,0 +1,58 @@
+openapi: 3.0.0
+info:
+  title: Inventory Management Service
+  description: API Service to manage Inventory Objects Create.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3014/api
+    description: Local server.
+
+paths:
+  /inventory-objects:
+    post:
+      summary: Create a new inventory object.
+      description: Adds a new inventory object to the database with the specified type, quantity, and status.
+      operationId: createInventoryObject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                objectType:
+                  type: string
+                  example: "camillas"
+                quantity:
+                  type: integer
+                  example: 50
+                status:
+                  type: string
+                  example: "available"
+      responses:
+        '201':
+          description: Inventory object created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Inventory object created successfully!"
+                  data:
+                    type: object
+                    properties:
+                      objectType:
+                        type: string
+                        example: "camillas"
+                      quantity:
+                        type: integer
+                        example: 50
+                      status:
+                        type: string
+                        example: "available"
+        '400':
+          description: Bad request - missing required fields
+        '500':
+          description: Internal server error

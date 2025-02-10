@@ -1,0 +1,89 @@
+name: Global CI Pipeline
+
+on:
+  push:
+    branches: ["dev"]
+  pull_request:
+    branches: ["main", "QA"]
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      inventoryobjectscreate: ${{ steps.filter.outputs.inventoryobjectscreate }}
+      inventoryobjectsdelete: ${{ steps.filter.outputs.inventoryobjectsdelete }}
+      inventoryobjectsread: ${{ steps.filter.outputs.inventoryobjectsread }} 
+      inventoryobjectsupdate: ${{ steps.filter.outputs.inventoryobjectsupdate }} 
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Detect changes
+        id: filter
+        run: |
+          BEFORE_COMMIT=${{ github.event.before }}
+          CURRENT_COMMIT=${{ github.sha }}
+
+          if [ -z "$BEFORE_COMMIT" ]; then
+            BEFORE_COMMIT=$(git rev-parse HEAD~1)
+          fi
+
+          CHANGED_FILES=$(git diff --name-only $BEFORE_COMMIT $CURRENT_COMMIT)
+          
+          declare -A SERVICES=( 
+            ["inventoryobjectscreate"]="inventoryObjectsCreate"
+            ["inventoryobjectsdelete"]="inventoryObjectsDelete"
+            ["inventoryobjectsread"]="inventoryObjectsRead"
+            ["inventoryobjectsupdate"]="inventoryObjectsUpdate" # Agregado para "update"
+          )
+
+          OUTPUT_FILE="$GITHUB_OUTPUT"
+
+          for KEY in "${!SERVICES[@]}"; do
+            if echo "$CHANGED_FILES" | grep -q "^${SERVICES[$KEY]}/"; then
+              echo "$KEY=true" >> "$OUTPUT_FILE"
+            fi
+          done
+
+  trigger-inventory-objects-create:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.inventoryobjectscreate == 'true' }}
+    uses: ./.github/workflows/inventoryobjectscreate.yml
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_KEY: ${{ secrets.EC2_KEY}}
+
+  trigger-inventory-objects-delete:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.inventoryobjectsdelete == 'true' }}
+    uses: ./.github/workflows/inventoryobjectsdelete.yml
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_KEY: ${{ secrets.EC2_KEY}}
+      
+  trigger-inventory-objects-read:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.inventoryobjectsread == 'true' }}
+    uses: ./.github/workflows/inventoryobjectsread.yml
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_KEY: ${{ secrets.EC2_KEY}}
+
+  trigger-inventory-objects-update:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.inventoryobjectsupdate == 'true' }}
+    uses: ./.github/workflows/inventoryobjectsupdate.yml 
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_KEY: ${{ secrets.EC2_KEY}}
