@@ -7,7 +7,9 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 
 dotenv.config();
 const app = express();
+
 const port = process.env.PORTU || 3017;
+
 // Swagger Configuration.
 const swaggerDocument = yaml.load('./src/docs/swagger.yaml');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -26,6 +28,7 @@ app.use((err, req, res, next) => {
 });
 
 // Initialize Server.
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
   console.log(`Swagger docs available at http://localhost:${process.env.PORTU}/api-docs`);
