@@ -10,7 +10,7 @@ const app = express();
 
 const port = process.env.PORTU || 3017;
 
-// Swagger Configuration.
+// Swagger Configuration
 const swaggerDocument = yaml.load('./src/docs/swagger.yaml');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
