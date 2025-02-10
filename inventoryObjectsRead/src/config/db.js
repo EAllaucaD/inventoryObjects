@@ -7,8 +7,22 @@ const pool = new Pool({
   user: process.env.USER_DB,
   password: process.env.PASSWORD_DB,
   database: process.env.DATABASE_NAME,
-  port: process.env.DB_PORT,
+  port: process.env.DB_PORT || 5432,
 });
+
+
+async function testConnection() {
+  try {
+    const res = await pool.query('SELECT NOW()');
+    console.log("Connection successful:", res.rows);
+  } catch (err) {
+    console.error("Connection error:", err);
+  } finally {
+    pool.end();
+  }
+}
+
+testConnection();
 
 module.exports = {
   query: (text, params) => pool.query(text, params),
