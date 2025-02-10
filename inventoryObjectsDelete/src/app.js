@@ -12,7 +12,7 @@ const app = express();
 // Configuring CORS and using JSON
 app.use(cors());
 app.use(express.json());
-
+const port = process.env.PORTD || 3015;
 // Load and configure Swagger
 const swaggerDocument = yaml.load('./src/docs/swagger.yaml');  // Cargar el archivo swagger.yaml
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));  // Configurar la URL de documentación Swagger
@@ -27,8 +27,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start server.
-const PORT = process.env.PORTD || 3015;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORTD}`);
-  console.log(`Swagger docs available at http://localhost:${PORTD}/api-docs`);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+  console.log(`Swagger docs available at http://localhost:${process.env.PORTD}/api-docs`);
 });

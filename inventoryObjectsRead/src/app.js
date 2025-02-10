@@ -8,6 +8,7 @@ const yaml = require('yamljs');
 
 dotenv.config();
 const app = express();
+const port = process.env.PORTR || 3016;
 
 // Configure Swagger
 const swaggerDocument = yaml.load('./src/docs/swagger.yaml');  // Cargar el archivo swagger.yaml
@@ -27,8 +28,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start the server
-const PORT = process.env.PORTR || 3016;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORTR}`);
-  console.log(`Swagger docs available at http://localhost:${PORTR}/api-docs`);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+  console.log(`Swagger docs available at http://localhost:${process.env.PORTR}/api-docs`);
 });
