@@ -24,5 +24,5 @@ app.use('/api', inventoryRoutes);
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
-  console.log(`Swagger docs available at http://localhost:${process.env.PORT}/api-docs`);
+  console.log(`Swagger docs available at http://localhost:${process.env.PORTC}/api-docs`);
 });
