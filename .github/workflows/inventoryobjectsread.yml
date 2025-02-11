@@ -11,6 +11,18 @@ on:
         required: true
       EC2_KEY:
         required: true
+      HOST_DB:
+        required: true
+      USER_DB:
+        required: true
+      PASSWORD_DB:
+        required: true
+      DATABASE_NAME:
+        required: true
+      JWT_SECRET:
+        required: true
+      PORTR:
+        required: true
 
 jobs:
   build:
