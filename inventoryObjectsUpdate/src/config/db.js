@@ -10,6 +10,18 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
+
+async function testConnection() {
+  try {
+    const res = await pool.query('SELECT NOW()');
+    console.log("Connection successful:", res.rows);
+  } catch (err) {
+    console.error("Connection error:", err);
+  }
+}
+
+testConnection();
+
 module.exports = {
   query: (text, params) => pool.query(text, params),
 };
