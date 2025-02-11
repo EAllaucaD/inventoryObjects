@@ -7,7 +7,7 @@ const pool = new Pool({
   user: process.env.USER_DB,
   password: process.env.PASSWORD_DB,
   database: process.env.DATABASE_NAME,
-  ssl: { rejectUnauthorized: false }
+  
 });
 
 
