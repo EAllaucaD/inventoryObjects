@@ -23,7 +23,7 @@ app.use(express.json());
 // Setting up routes
 app.use('/api/inventory-objects', inventoryRoutes);
 
-// Error handling
+// Error handling.
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Internal Server Error' });
@@ -31,7 +31,7 @@ app.use((err, req, res, next) => {
 
 // Start the server
 
-app.listen(port, () => {
+app.listen(port,"0.0.0.0", () => {
   console.log(`Server running on port ${port}`);
-  console.log(`Swagger docs available at http://localhost:${process.env.PORTR}/api-docs`)
+  console.log(`Swagger docs available at http://localhost:${port}/api-docs`)
 });

@@ -11,6 +11,18 @@ on:
         required: true
       EC2_KEY:
         required: true
+      HOST_DB:
+        required: true
+      USER_DB:
+        required: true
+      PASSWORD_DB:
+        required: true
+      DATABASE_NAME:
+        required: true
+      JWT_SECRET:
+        required: true
+      PORTR:
+        required: true
 
 jobs:
   build:
@@ -25,12 +37,9 @@ jobs:
       - name: Exclude docs and swagger.yaml for main
         if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
         run: |
-          # Exclude docs/ and swagger.yaml when in main or when doing pull request to main
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             rm -rf ./inventoryObjectsRead/src/docs
           fi
-          
-          # If it is a pull request to main from dev or QA, also exclude the files
           if [[ "${{ github.event_name }}" == "pull_request" && ( "${{ github.event.pull_request.base.ref }}" == "main" ) ]]; then
             rm -rf ./inventoryObjectsRead/src/docs
           fi
@@ -65,7 +74,6 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script: |
-            # Install Docker if not already installed
             if ! command -v docker &> /dev/null; then
               echo "Installing Docker..."
               sudo apt update
@@ -89,16 +97,13 @@ jobs:
               exit 1
             fi
 
-            # Pull the Docker image
             echo "Pulling Docker image with tag: $TAG"
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/inventoryobjectsread:$TAG
 
-            # Stop and remove the old container
             echo "Stopping and removing old container..."
             sudo docker stop inventoryobjectsread-container || true
             sudo docker rm -f inventoryobjectsread-container || true
 
-            # Run the new container
             echo "Running new container..."
             sudo docker run -d -p 3016:3016 --restart unless-stopped --name inventoryobjectsread-container \
               -e HOST_DB=${{ secrets.HOST_DB }} \

@@ -2,20 +2,20 @@ const pool = require('../config/db');
 
 // Create an object in the database
 const createInventoryObject = async (req, res) => {
-    const { objectType, quantity, status } = req.body;
+    const { objecttype, quantity, status } = req.body;
 
-    if (!objectType || !quantity || !status) {
+    if (!objecttype || !quantity || !status) {
         return res.status(400).json({ message: 'All fields are required.' });
     }
 
     try {
         // Insert into inventoryObj table
         const query = `
-            INSERT INTO inventoryObj (objectType, quantity, status)
+            INSERT INTO inventoryObj (objecttype, quantity, status)
             VALUES ($1, $2, $3)
             RETURNING *;
         `;
-        const values = [objectType, quantity, status];
+        const values = [objecttype, quantity, status];
         
         const result = await pool.query(query, values);
 

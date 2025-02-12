@@ -22,16 +22,17 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));  // Con
 // Routes
 app.use('/api/inventory-objects', inventoryRoutes);
 
-// Error handling
+// Error handling.
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Internal Server Error' });
 });
 
-// Start server.
+
+// Start server
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
-  console.log(`Swagger docs available at http://localhost:${process.env.PORTD}/api-docs`);
+  console.log(`Swagger docs available at http://localhost:${port}/api-docs`);
 });
 
