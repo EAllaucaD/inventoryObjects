@@ -70,7 +70,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Routes
 app.use('/api', inventoryRoutes);
 
-// Start the server
+// Start the server.
 app.listen(port, "0.0.0.0", () => {
   console.log(`Server running on port ${port}`);
   console.log(`Swagger docs available at http://localhost:${port}/api-docs`);
